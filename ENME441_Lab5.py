@@ -45,7 +45,8 @@ try:
 			phase = i * (math.pi / 11) * direction
 
 			# B = (sin(2 * pi * f * t - phi))^2 where f = 0.2 Hz
-			brightness = (math.sin(2 * math.pi * 0.2 * t - phase))^2
+			brightness = (math.sin(2 * math.pi * 0.2 * t - phase))
+			brightness = brightness * brightness
 
 			duty_cycle = brightness * 100
 
