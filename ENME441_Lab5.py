@@ -21,7 +21,7 @@ GPIO.setup(button_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 pwms = []
 for pin in led_pins:
 	pwm_obj = GPIO.PWM(pin, 500)		#500 hz
-	pwmUobj.start(0)					# Starts at 0% duty cycle
+	pwm_obj.start(0)					# Starts at 0% duty cycle
 	pwms.append(pwm_obj)
 
 direction = 1
