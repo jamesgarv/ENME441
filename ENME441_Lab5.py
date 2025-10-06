@@ -50,7 +50,7 @@ try:
 
 			duty_cycle = brightness * 100
 
-			pwm[i].ChangeDutyCycle(duty_cycle)
+			pwms[i].ChangeDutyCycle(duty_cycle)
 
 except KeyboardInterrupt:
 	print("\nKeeb Interrupt")
