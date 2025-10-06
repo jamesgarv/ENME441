@@ -2,7 +2,7 @@
 
 import RPi.GPIO as GPIO
 import time
-import math
+import math		#used for pi and sin
 
 GPIO.setmode(GPIO.BCM)
 
@@ -16,24 +16,22 @@ for pin in led_pins:
 # Button uses pull down resistor
 GPIO.setup(button_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
-#PWN 
-
-pwms = []
-for pin in led_pins:
-	pwm_obj = GPIO.PWM(pin, 500)		#500 hz
+pwms = []								# empty array to store pwms
+for pin in led_pins:					# loop through pins
+	pwm_obj = GPIO.PWM(pin, 500)		# 500 hz
 	pwm_obj.start(0)					# Starts at 0% duty cycle
-	pwms.append(pwm_obj)
+	pwms.append(pwm_obj)				# puts into array
 
-direction = 1
+direction = 1		# var controlling direction of lights
 
-def button_callback(pin):
+def button_callback(pin):				# switches direction when calling button_callback
 	global direction
 	direction = direction * (-1)
 
 # Event Detection
 GPIO.add_event_detect(button_pin, GPIO.RISING, callback = button_callback, bouncetime = 200)
 
-print("Waving, click button to switch direction")
+print("Click button to switch direction")
 
 try:
 	while True:
@@ -59,10 +57,7 @@ except Exception as e:
 	print (f"\nError: {e}")
 
 finally: 
-	for pwm_obj in pwms:
-		pwm_obj.stop()
+	for pwm_obj in pwms:					#goes through each pwm obj
+		pwm_obj.stop()						#stops signal for that led
 	GPIO.cleanup()
-	print("GPIO cleanup completed")
-
-
 
