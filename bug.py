@@ -3,6 +3,8 @@ import random
 import RPi.GPIO as GPIO
 from shifter import Shifter
 
+GPIO.setmode(GPIO.BCM)
+
 class Bug:
     def __init__(self, timestep=0.1, x = 3, isWrapOn = False):
         self.timestep = timestep
