@@ -1,5 +1,5 @@
 import socket
-import machine
+import RPi.GPIO as GPIO
 import time
 
 # Initialize PWM for LEDs (adjust pins according to your setup)
