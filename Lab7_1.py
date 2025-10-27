@@ -58,7 +58,7 @@ def web_page():
 # Serve the web page to a client on connection:
 def serve_web_page():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # TCP-IP socket
-    s.bind(('', 80))
+    s.bind(('', 8080))
     s.listen(1)  # up to 3 queued connections
     while True:
         time.sleep(0.1)
