@@ -7,7 +7,7 @@ import time
 # =========================
 led_pins = [5, 6, 26]      # BCM pin numbers for the 3 LEDs
 freq = 1000                # PWM frequency (Hz)
-brightness = [0, 0, 0]     # array stores brightness of LEDs
+brightness = [0, 0, 0]     # store current brightness % for each LED
 pwms = []
 
 GPIO.setmode(GPIO.BCM)
