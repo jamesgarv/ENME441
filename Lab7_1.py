@@ -2,12 +2,10 @@ import socket
 import RPi.GPIO as GPIO
 import time
 
-# =========================
-#  GPIO + PWM SETUP
-# =========================
-led_pins = [5, 6, 26]      # BCM pin numbers for the 3 LEDs
+#  set up
+led_pins = [5, 6, 26]      # pins for LEDs
 freq = 1000                # PWM frequency (Hz)
-brightness = [0, 0, 0]     # store current brightness % for each LED
+brightness = [0, 0, 0]     # store current brightness for each LED
 pwms = []
 
 GPIO.setmode(GPIO.BCM)
@@ -18,11 +16,9 @@ for pin in led_pins:
     pwms.append(pwm)
 
 
-# =========================
-#  BRIGHTNESS CONTROL
-# =========================
+#  controls brightness
 def change_brightness(index, value):
-    """Clamp and set LED brightness."""
+    """Clamps and sets LED brightness."""
     try:
         val = int(value)
     except:
@@ -32,9 +28,7 @@ def change_brightness(index, value):
     pwms[index].ChangeDutyCycle(val)
 
 
-# =========================
-#  POST DATA PARSER
-# =========================
+#  post data parser
 def parsePOSTdata(data):
     """Extract key:value pairs from POST body."""
     try:
@@ -52,14 +46,12 @@ def parsePOSTdata(data):
     return result
 
 
-# =========================
-#  HTML PAGE BUILDER
-# =========================
+#  html page builder
 def web_page(selected_led=0):
     # Precompute checked attributes
-    c0 = 'checked' if selected_led == 0 else ''
-    c1 = 'checked' if selected_led == 1 else ''
-    c2 = 'checked' if selected_led == 2 else ''
+    b0 = 'checked' if selected_led == 0 else ''
+    b1 = 'checked' if selected_led == 1 else ''
+    b2 = 'checked' if selected_led == 2 else ''
 
     # Use triple-single-quoted f-string; align closing quotes with this line
     html = f'''
@@ -74,9 +66,9 @@ def web_page(selected_led=0):
   <input type="range" name="brightness" min="0" max="100" value="{brightness[selected_led]}"> {brightness[selected_led]}%<br><br>
 
   Select LED:<br>
-  <input type="radio" name="led" value="0" {c0}> LED 1 ({brightness[0]}%)<br>
-  <input type="radio" name="led" value="1" {c1}> LED 2 ({brightness[1]}%)<br>
-  <input type="radio" name="led" value="2" {c2}> LED 3 ({brightness[2]}%)<br><br>
+  <input type="radio" name="led" value="0" {b0}> LED 1 ({brightness[0]}%)<br>
+  <input type="radio" name="led" value="1" {b1}> LED 2 ({brightness[1]}%)<br>
+  <input type="radio" name="led" value="2" {b2}> LED 3 ({brightness[2]}%)<br><br>
 
   <input type="submit" value="Change Brightness">
 </form>
@@ -86,15 +78,13 @@ def web_page(selected_led=0):
     return bytes(html, "utf-8")
 
 
-# =========================
-#  WEB SERVER LOOP
-# =========================
+#  Loops the web server
 def serve_web_page():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     s.bind(('', 8080))  # use 80 if running with sudo
     s.listen(1)
-    print("Server running — visit http://Pinecone.local:8080")
+    print("Server running — visit http://Pinecone.local:8080")     
 
     while True:
         print("Waiting for connection...")
@@ -124,10 +114,7 @@ def serve_web_page():
         finally:
             conn.close()
 
-
-# =========================
-#  MAIN
-# =========================
+#  run the code
 try:
     serve_web_page()
 except KeyboardInterrupt:
