@@ -94,7 +94,7 @@ def serve_web_page():
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     s.bind(('', 8080))  # use 80 if running with sudo
     s.listen(1)
-    print("Server running — visit http://raspberrypi.local:80")
+    print("Server running — visit http://Pinecone.local:8080")
 
     while True:
         print("Waiting for connection...")
