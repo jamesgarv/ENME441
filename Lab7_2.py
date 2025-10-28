@@ -121,7 +121,7 @@ wireSlider(2);
 def serve_web_page():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    s.bind(('', 80))  # run with sudo for port 80
+    s.bind(('', 8080))  # run with sudo for port 80
     s.listen(1)
     print("Server running — visit http://Pinecone.local:8080 (or your Pi's IP)")
 
