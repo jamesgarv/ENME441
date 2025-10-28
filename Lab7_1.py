@@ -92,7 +92,7 @@ def web_page(selected_led=0):
 def serve_web_page():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    s.bind(('', 80))  # use 80 if running with sudo
+    s.bind(('', 8080))  # use 80 if running with sudo
     s.listen(1)
     print("Server running — visit http://raspberrypi.local:80")
 
