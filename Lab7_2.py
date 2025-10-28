@@ -123,7 +123,7 @@ def serve_web_page():
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     s.bind(('', 80))  # run with sudo for port 80
     s.listen(1)
-    print("Server running — visit http://raspberrypi.local:80 (or your Pi's IP)")
+    print("Server running — visit http://Pinecone.local:8080 (or your Pi's IP)")
 
     while True:
         conn, addr = s.accept()
