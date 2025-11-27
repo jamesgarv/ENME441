@@ -289,7 +289,7 @@ def generate_html():
 </html>"""
     return html
 
-def start_server(port=8080):
+def start_server(port=8000):
     # Create HTML file
     with open('index.html', 'w') as f:
         f.write(generate_html())
