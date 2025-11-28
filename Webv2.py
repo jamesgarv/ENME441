@@ -9,6 +9,8 @@ import time
 # import RPi.GPIO as GPIO
 
 class GPIOSimulator:
+    """ This simulates GPIO for testing but doesnt control actual physical 
+    pins, this can be removed when we put in GPIO pins """
     def __init__(self):
         self.pin_state = False
         self.radius = 0
@@ -16,18 +18,21 @@ class GPIOSimulator:
         self.z = 0
         
     def toggle_pin(self):
+        """This toggles the GPIO pin ON and OFF"""
         self.pin_state = not self.pin_state
         # For actual GPIO usage:
         # GPIO.output(PIN_NUMBER, GPIO.HIGH if self.pin_state else GPIO.LOW)
         return self.pin_state
     
     def set_origin(self, radius, theta, z):
+        """This sets the new origin coordinates for the coordinate system"""
         self.radius = float(radius)
         self.theta = float(theta)
         self.z = float(z)
         return True
     
     def get_status(self):
+        """Returns current state of all variables displayed"""
         return {
             'pin_state': 'ON' if self.pin_state else 'OFF',
             'radius': self.radius,
@@ -45,39 +50,51 @@ class GPIOSimulator:
 gpio = GPIOSimulator()
 
 class GPIORequestHandler(http.server.SimpleHTTPRequestHandler):
+    """ Custom HTTP handler that processes web requests 
+    and controls GPIO simulations"""
+   
     def do_GET(self):
+        """Handle GET requests - serve HTML file for root path"""
         if self.path == '/':
-            self.path = '/index.html'
-        return super().do_GET()
+            self.path = '/index.html' # Serve index.html for rool URL
+        return super().do_GET() # Uses parent class to serve static files
     
     def do_POST(self):
+        """Handle GET requests - serve HTML file for root path"""
         content_length = int(self.headers['Content-Length'])
         post_data = self.rfile.read(content_length).decode('utf-8')
         
-        response = {}
-        
+        response = {} #Holds response data
+
+        #Rerout request based on URL path
         if self.path == '/toggle':
+            # Toggle GPIO pin state
             new_state = gpio.toggle_pin()
             response = {'status': 'ON' if new_state else 'OFF'}
             
         elif self.path == '/set_origin':
-            data = json.loads(post_data)
+            # Set new origin coordinates
+            data = json.loads(post_data) #Parse JSON data from request
             success = gpio.set_origin(data['radius'], data['theta'], data['z'])
             response = {'success': success}
             
         elif self.path == '/automation':
+            # Start automation
             success = gpio.initiate_automation()
             response = {'success': success}
             
         elif self.path == '/status':
+            # Returns current states of all variables
             response = gpio.get_status()
-        
+
+        # Send response back to the web browser
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
         self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
-        self.wfile.write(json.dumps(response).encode())
+        self.wfile.write(json.dumps(response).encode()) #Send JSON response
 
+# HTML website - used an LLM
 def generate_html():
     html = """<!DOCTYPE html>
 <html lang="en">
@@ -289,16 +306,17 @@ def generate_html():
 </html>"""
     return html
 
+#Start website server on the specified port
 def start_server(port=8000):
     # Create HTML file
     with open('index.html', 'w') as f:
         f.write(generate_html())
     
-    # Start the server
+    # Start the HTTP server
     with socketserver.TCPServer(("", port), GPIORequestHandler) as httpd:
         print(f"Server running at http://localhost:{port}")
         print("Access the control panel from any device on your network")
-        httpd.serve_forever()
+        httpd.serve_forever() #Makes the server run forever
 
 if __name__ == "__main__":
     # For actual GPIO usage, uncomment and configure:
