@@ -1,100 +1,108 @@
 import http.server
 import socketserver
 import json
-import threading
 import time
+import multiprocessing
+from Shifter import shifter
+from MultiStepper import Stepper  # Import your existing class
 
 # GPIO simulation (replace with RPi.GPIO or gpiozero for real implementation)
-# For actual GPIO usage, uncomment the following line:
-# import RPi.GPIO as GPIO
-
 class GPIOSimulator:
-    """ This simulates GPIO for testing but doesnt control actual physical 
-    pins, this can be removed when we put in GPIO pins """
     def __init__(self):
         self.pin_state = False
         self.radius = 0
         self.theta = 0
         self.z = 0
         
+        # Initialize motor control system using your existing code
+        self.s = shifter(16, 21, 20)
+        self.lock = multiprocessing.Lock()
+        self.m1 = Stepper(self.s, self.lock, 0)
+        self.m2 = Stepper(self.s, self.lock, 1)
+        
+        # Initialize motor angles
+        self.m1.zero()
+        self.m2.zero()
+        
     def toggle_pin(self):
-        """This toggles the GPIO pin ON and OFF"""
         self.pin_state = not self.pin_state
         # For actual GPIO usage:
         # GPIO.output(PIN_NUMBER, GPIO.HIGH if self.pin_state else GPIO.LOW)
         return self.pin_state
     
     def set_origin(self, radius, theta, z):
-        """This sets the new origin coordinates for the coordinate system"""
         self.radius = float(radius)
         self.theta = float(theta)
         self.z = float(z)
+        
+        # Set motors to origin (0 position) using your existing methods
+        self.m1.zero()
+        self.m2.zero()
+        
         return True
     
     def get_status(self):
-        """Returns current state of all variables displayed"""
         return {
             'pin_state': 'ON' if self.pin_state else 'OFF',
             'radius': self.radius,
             'theta': self.theta,
-            'z': self.z
+            'z': self.z,
+            'motor1_angle': self.m1.angle,
+            'motor2_angle': self.m2.angle
         }
     
     def initiate_automation(self):
-        # Do automation task
-        print("Automation task initiated")
-        # Add your automation logic here
+        # Do automation task using your existing motor control code
+        print("Automation task initiated - moving motors")
+        
+        # Use your exact motor sequence from MultiStepper.py
+        self.m1.goAngle(90)
+        self.m1.goAngle(-45)
+        self.m2.goAngle(-90)
+        self.m2.goAngle(45)
+        self.m1.goAngle(-135)
+        self.m1.goAngle(135)
+        self.m1.goAngle(0)
+        
         return True
 
 # Global GPIO instance
 gpio = GPIOSimulator()
 
 class GPIORequestHandler(http.server.SimpleHTTPRequestHandler):
-    """ Custom HTTP handler that processes web requests 
-    and controls GPIO simulations"""
-   
     def do_GET(self):
-        """Handle GET requests - serve HTML file for root path"""
         if self.path == '/':
-            self.path = '/index.html' # Serve index.html for rool URL
-        return super().do_GET() # Uses parent class to serve static files
+            self.path = '/index.html'
+        return super().do_GET()
     
     def do_POST(self):
-        """Handle GET requests - serve HTML file for root path"""
         content_length = int(self.headers['Content-Length'])
         post_data = self.rfile.read(content_length).decode('utf-8')
         
-        response = {} #Holds response data
-
-        #Rerout request based on URL path
+        response = {}
+        
         if self.path == '/toggle':
-            # Toggle GPIO pin state
             new_state = gpio.toggle_pin()
             response = {'status': 'ON' if new_state else 'OFF'}
             
         elif self.path == '/set_origin':
-            # Set new origin coordinates
-            data = json.loads(post_data) #Parse JSON data from request
+            data = json.loads(post_data)
             success = gpio.set_origin(data['radius'], data['theta'], data['z'])
             response = {'success': success}
             
         elif self.path == '/automation':
-            # Start automation
             success = gpio.initiate_automation()
             response = {'success': success}
             
         elif self.path == '/status':
-            # Returns current states of all variables
             response = gpio.get_status()
-
-        # Send response back to the web browser
+        
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
         self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
-        self.wfile.write(json.dumps(response).encode()) #Send JSON response
+        self.wfile.write(json.dumps(response).encode())
 
-# HTML website - used an LLM
 def generate_html():
     html = """<!DOCTYPE html>
 <html lang="en">
@@ -172,6 +180,12 @@ def generate_html():
             border-radius: 4px;
             margin-top: 10px;
         }
+        .motor-status {
+            background-color: #e8f4fd;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -206,6 +220,12 @@ def generate_html():
                 <div>Theta: <span id="currentTheta">0</span></div>
                 <div>Z: <span id="currentZ">0</span></div>
             </div>
+            
+            <div class="motor-status">
+                <h3>Motor Positions:</h3>
+                <div>Motor 1 Angle: <span id="motor1Angle">0</span>°</div>
+                <div>Motor 2 Angle: <span id="motor2Angle">0</span>°</div>
+            </div>
         </div>
         
         <div class="control-section">
@@ -226,6 +246,8 @@ def generate_html():
         const currentRadius = document.getElementById('currentRadius');
         const currentTheta = document.getElementById('currentTheta');
         const currentZ = document.getElementById('currentZ');
+        const motor1Angle = document.getElementById('motor1Angle');
+        const motor2Angle = document.getElementById('motor2Angle');
         
         // Toggle button functionality
         toggleBtn.addEventListener('click', async () => {
@@ -255,7 +277,7 @@ def generate_html():
                 const data = await response.json();
                 if (data.success) {
                     updateCurrentValues();
-                    alert('Origin set successfully!');
+                    alert('Origin set successfully! Motors zeroed.');
                 }
             } catch (error) {
                 console.error('Error setting origin:', error);
@@ -268,7 +290,7 @@ def generate_html():
                 const response = await fetch('/automation', { method: 'POST' });
                 const data = await response.json();
                 if (data.success) {
-                    alert('Automation initiated!');
+                    alert('Automation initiated! Motors moving...');
                 }
             } catch (error) {
                 console.error('Error initiating automation:', error);
@@ -290,6 +312,8 @@ def generate_html():
                 currentRadius.textContent = data.radius;
                 currentTheta.textContent = data.theta;
                 currentZ.textContent = data.z;
+                motor1Angle.textContent = data.motor1_angle.toFixed(2);
+                motor2Angle.textContent = data.motor2_angle.toFixed(2);
                 updateStatusDisplay(data.pin_state);
             } catch (error) {
                 console.error('Error fetching status:', error);
@@ -306,22 +330,18 @@ def generate_html():
 </html>"""
     return html
 
-#Start website server on the specified port
 def start_server(port=8000):
     # Create HTML file
     with open('index.html', 'w') as f:
         f.write(generate_html())
     
-    # Start the HTTP server
+    # Start the server
     with socketserver.TCPServer(("", port), GPIORequestHandler) as httpd:
         print(f"Server running at http://localhost:{port}")
         print("Access the control panel from any device on your network")
-        httpd.serve_forever() #Makes the server run forever
+        print("Motor control system is ready!")
+        httpd.serve_forever()
 
 if __name__ == "__main__":
-    # For actual GPIO usage, uncomment and configure:
-    # GPIO.setmode(GPIO.BCM)
-    # GPIO.setup(PIN_NUMBER, GPIO.OUT)
-    # GPIO.output(PIN_NUMBER, GPIO.LOW)
-    
+    # Start the web server with motor control
     start_server()
