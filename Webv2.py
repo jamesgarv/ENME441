@@ -3,8 +3,14 @@ import socketserver
 import json
 import time
 import multiprocessing
-from shifter import shifter
-from MultiStepper import Stepper  # Import your existing class
+from Shifter import shifter
+from Motor_Code_Project import Stepper
+import Json_Reader
+
+XY = Json_Reader.goanglexy
+Z = Json_Reader.goanglez
+numturrets = len(Json_Reader.TurretData)
+numball = len(Json_Reader.BallData)
 
 # GPIO simulation (replace with RPi.GPIO or gpiozero for real implementation)
 class GPIOSimulator:
@@ -54,15 +60,33 @@ class GPIOSimulator:
     def initiate_automation(self):
         # Do automation task using your existing motor control code
         print("Automation task initiated - moving motors")
-        
-        # Use your exact motor sequence from MultiStepper.py
-        self.m1.goAngle(90)
-        self.m1.goAngle(-45)
-        self.m2.goAngle(-90)
-        self.m2.goAngle(45)
-        self.m1.goAngle(-135)
-        self.m1.goAngle(135)
-        self.m1.goAngle(0)
+
+        for t in range(1, numturrets):
+            self.m1.goAngle(XY[f"turret_{t}"])
+            self.m2.goAngle(Z[f"turret_{t}"])
+    
+            self.m1.both.wait()
+            self.m2.both.wait()
+    
+            #GPIO.output(11,1) 
+            time.sleep(3)
+            #GPIO.output(11,0)
+    
+        # ---------------- AUTOMATED BALL MOVEMENT ----------------
+        for b in range(1, numball):
+            self.m1.goAngle(XY[f"ball_{b}"])
+            self.m2.goAngle(Z[f"ball_{b}"])
+    
+            self. m1.both.wait()
+            self. m2.both.wait()
+    
+            #GPIO.output(11,1) 
+            time.sleep(3)
+            #GPIO.output(11,0)
+    
+        # Return to zero
+            self.m1.goAngle(0)
+            self.m2.goAngle(0)
         
         return True
 
@@ -330,11 +354,17 @@ def generate_html():
 </html>"""
     return html
 
+class ReusableTCPServer(socketserver.TCPServer):
+    allow_reuse_address = True
+
 def start_server(port=8000):
-    # Create HTML file
     with open('index.html', 'w') as f:
         f.write(generate_html())
-    
+
+    with ReusableTCPServer(("", port), GPIORequestHandler) as httpd:
+        print(f"Server running at http://localhost:{port}")
+        httpd.serve_forever()
+        
     # Start the server
     with socketserver.TCPServer(("", port), GPIORequestHandler) as httpd:
         print(f"Server running at http://localhost:{port}")
