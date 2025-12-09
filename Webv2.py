@@ -142,11 +142,11 @@ def generate_html():
     <button id="toggleBtn">Toggle ON/OFF</button>
     <div id="statusDisplay">Status: OFF</div>
     
-    <h2>Position Control</h2>
+    <h2>Manual Control</h2>
     <div>
         <label>Radius: <input type="number" id="radius" value="0" step="0.1"></label><br>
-        <label>Theta: <input type="number" id="theta" value="0" step="0.1"></label><br>
-        <label>Z: <input type="number" id="z" value="0" step="0.1"></label>
+        <label>Theta:  <input type="number" id="theta" value="0" step="0.1"></label><br>
+        <label>Z:      <input type="number" id="z" value="0" step="0.1"></label>
     </div>
     <button id="setOriginBtn">Set Origin</button>
     
