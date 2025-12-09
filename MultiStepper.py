@@ -1,6 +1,6 @@
 import time
 import multiprocessing
-from Shifter import shifter  # your custom module
+from shifter import Shifter  # your custom module
 
 # Shared array for two steppers (integers)
 myArray = multiprocessing.Array('i', 2)
@@ -12,13 +12,13 @@ class Stepper:
     delay = 12000  # microseconds
     steps_per_degree = 1024 / 360
 
-    def __init__(self, shifter, lock, index):
-        self.s = shifter
+    def __init__(self, Shifter, lock, index):
+        self.s = Shifter
         self.lock = lock
         self.index = index
         self.angle = 0
         self.step_state = 0
-        self.shifter_bit_start = 4 * index
+        self.Shifter_bit_start = 4 * index
         self.q = multiprocessing.Queue()
 
         # Start a dedicated process to run commands from the queue
@@ -33,9 +33,9 @@ class Stepper:
         with self.lock:
             self.step_state = (self.step_state + direction) % 8
             # Clear previous 4 bits
-            myArray[self.index] &= ~(0b1111 << self.shifter_bit_start)
+            myArray[self.index] &= ~(0b1111 << self.Shifter_bit_start)
             # Set new bits
-            myArray[self.index] |= (Stepper.seq[self.step_state] << self.shifter_bit_start)
+            myArray[self.index] |= (Stepper.seq[self.step_state] << self.Shifter_bit_start)
 
             # Combine all motor bytes
             final = 0
@@ -77,7 +77,7 @@ class Stepper:
 
 
 if __name__ == '__main__':
-    s = shifter(16, 21, 20)
+    s = Shifter(16, 21, 20)
     lock = multiprocessing.Lock()
 
     m1 = Stepper(s, lock, 0)
