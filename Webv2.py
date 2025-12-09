@@ -144,8 +144,8 @@ def generate_html():
     
     <h2>Position Control</h2>
     <div>
-        <label>Radius: <input type="number" id="radius" value="0" step="0.1"></label>
-        <label>Theta: <input type="number" id="theta" value="0" step="0.1"></label>
+        <label>Radius: <input type="number" id="radius" value="0" step="0.1"></label><br>
+        <label>Theta: <input type="number" id="theta" value="0" step="0.1"></label><br>
         <label>Z: <input type="number" id="z" value="0" step="0.1"></label>
     </div>
     <button id="setOriginBtn">Set Origin</button>
