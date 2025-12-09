@@ -134,20 +134,23 @@ def generate_html():
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Raspberry Pi Control</title>
+    <style>
+        body {
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
     <h1>Raspberry Pi Control</h1>
     
     <h2>GPIO Toggle</h2>
-    <button id="toggleBtn">Toggle ON/OFF</button>
+    <button id="toggleBtn">Toggle ON/OFF</button><br>
     <div id="statusDisplay">Status: OFF</div>
     
     <h2>Position Control</h2>
-    <div>
-        <label>Radius: <input type="number" id="radius" value="0" step="0.1"></label>
-        <label>Theta: <input type="number" id="theta" value="0" step="0.1"></label>
-        <label>Z: <input type="number" id="z" value="0" step="0.1"></label>
-    </div>
+    <label>Radius: <input type="number" id="radius" value="0" step="0.1"></label><br>
+    <label>Theta: <input type="number" id="theta" value="0" step="0.1"></label><br>
+    <label>Z: <input type="number" id="z" value="0" step="0.1"></label><br>
     <button id="setOriginBtn">Set Origin</button>
     
     <h3>Current Values:</h3>
