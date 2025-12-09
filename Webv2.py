@@ -21,7 +21,7 @@ class GPIOSimulator:
         self.z = 0
         
         # Initialize motor control system using your existing code
-        self.s = shifter(16, 21, 20)
+        self.s = Shifter(16, 21, 20)
         self.lock = multiprocessing.Lock()
         self.m1 = Stepper(self.s, self.lock, 0)
         self.m2 = Stepper(self.s, self.lock, 1)
