@@ -3,7 +3,7 @@ import socketserver
 import json
 import time
 import multiprocessing
-from shifter import shifter
+from shifter import Shifter
 from MultiStepper import Stepper
 import Json_Reader
 
