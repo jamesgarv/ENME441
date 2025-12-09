@@ -133,130 +133,34 @@ def generate_html():
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Raspberry Pi Control Panel</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .container {
-            background-color: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        h1, h2 {
-            color: #333;
-        }
-        .control-section {
-            margin-bottom: 30px;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        .toggle-btn {
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-right: 10px;
-        }
-        .toggle-btn.off {
-            background-color: #f44336;
-        }
-        .status {
-            font-size: 18px;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-        .input-group {
-            margin-bottom: 10px;
-        }
-        label {
-            display: inline-block;
-            width: 80px;
-            font-weight: bold;
-        }
-        input {
-            padding: 5px;
-            width: 100px;
-            border: 1px solid #ddd;
-            border-radius: 3px;
-        }
-        .automation-btn {
-            padding: 12px 24px;
-            font-size: 16px;
-            background-color: #2196F3;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .current-values {
-            background-color: #f9f9f9;
-            padding: 10px;
-            border-radius: 4px;
-            margin-top: 10px;
-        }
-        .motor-status {
-            background-color: #e8f4fd;
-            padding: 10px;
-            border-radius: 4px;
-            margin-top: 10px;
-        }
-    </style>
+    <title>Raspberry Pi Control</title>
 </head>
 <body>
-    <div class="container">
-        <h1>Raspberry Pi Control Panel</h1>
-        
-        <div class="control-section">
-            <h2>GPIO Toggle Control</h2>
-            <button id="toggleBtn" class="toggle-btn">Toggle ON/OFF</button>
-            <div class="status" id="statusDisplay">Current status: OFF</div>
-        </div>
-        
-        <div class="control-section">
-            <h2>Manually adjust:</h2>
-            <div class="input-group">
-                <label for="radius">Radius:</label>
-                <input type="number" id="radius" value="0" step="0.1">
-            </div>
-            <div class="input-group">
-                <label for="theta">Theta:</label>
-                <input type="number" id="theta" value="0" step="0.1">
-            </div>
-            <div class="input-group">
-                <label for="z">Z:</label>
-                <input type="number" id="z" value="0" step="0.1">
-            </div>
-            <button id="setOriginBtn" class="toggle-btn">Set as Origin (0)</button>
-            
-            <div class="current-values">
-                <h3>Current Origin Values:</h3>
-                <div>Radius: <span id="currentRadius">0</span></div>
-                <div>Theta: <span id="currentTheta">0</span></div>
-                <div>Z: <span id="currentZ">0</span></div>
-            </div>
-            
-            <div class="motor-status">
-                <h3>Motor Positions:</h3>
-                <div>Motor 1 Angle: <span id="motor1Angle">0</span>°</div>
-                <div>Motor 2 Angle: <span id="motor2Angle">0</span>°</div>
-            </div>
-        </div>
-        
-        <div class="control-section">
-            <h2>Automation Control</h2>
-            <button id="automationBtn" class="automation-btn">Initiate Automation</button>
-        </div>
+    <h1>Raspberry Pi Control</h1>
+    
+    <h2>GPIO Toggle</h2>
+    <button id="toggleBtn">Toggle ON/OFF</button>
+    <div id="statusDisplay">Status: OFF</div>
+    
+    <h2>Position Control</h2>
+    <div>
+        <label>Radius: <input type="number" id="radius" value="0" step="0.1"></label>
+        <label>Theta: <input type="number" id="theta" value="0" step="0.1"></label>
+        <label>Z: <input type="number" id="z" value="0" step="0.1"></label>
     </div>
+    <button id="setOriginBtn">Set Origin</button>
+    
+    <h3>Current Values:</h3>
+    <div>Radius: <span id="currentRadius">0</span></div>
+    <div>Theta: <span id="currentTheta">0</span></div>
+    <div>Z: <span id="currentZ">0</span></div>
+    
+    <h3>Motor Angles:</h3>
+    <div>Motor 1: <span id="motor1Angle">0</span>°</div>
+    <div>Motor 2: <span id="motor2Angle">0</span>°</div>
+    
+    <h2>Automation</h2>
+    <button id="automationBtn">Start Automation</button>
 
     <script>
         // DOM elements
@@ -273,18 +177,18 @@ def generate_html():
         const motor1Angle = document.getElementById('motor1Angle');
         const motor2Angle = document.getElementById('motor2Angle');
         
-        // Toggle button functionality
+        // Toggle button
         toggleBtn.addEventListener('click', async () => {
             try {
                 const response = await fetch('/toggle', { method: 'POST' });
                 const data = await response.json();
-                updateStatusDisplay(data.status);
+                statusDisplay.textContent = `Status: ${data.status}`;
             } catch (error) {
                 console.error('Error toggling GPIO:', error);
             }
         });
         
-        // Set origin functionality
+        // Set origin
         setOriginBtn.addEventListener('click', async () => {
             const radius = radiusInput.value;
             const theta = thetaInput.value;
@@ -293,40 +197,30 @@ def generate_html():
             try {
                 const response = await fetch('/set_origin', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ radius, theta, z })
                 });
                 const data = await response.json();
                 if (data.success) {
                     updateCurrentValues();
-                    alert('Origin set successfully! Motors zeroed.');
                 }
             } catch (error) {
                 console.error('Error setting origin:', error);
             }
         });
         
-        // Automation button functionality
+        // Automation button
         automationBtn.addEventListener('click', async () => {
             try {
                 const response = await fetch('/automation', { method: 'POST' });
                 const data = await response.json();
                 if (data.success) {
-                    alert('Automation initiated! Motors moving...');
+                    alert('Automation started');
                 }
             } catch (error) {
-                console.error('Error initiating automation:', error);
+                console.error('Error starting automation:', error);
             }
         });
-        
-        // Update status display
-        function updateStatusDisplay(status) {
-            statusDisplay.textContent = `Current status: ${status}`;
-            toggleBtn.textContent = status === 'ON' ? 'Toggle OFF' : 'Toggle ON';
-            toggleBtn.className = `toggle-btn ${status === 'ON' ? '' : 'off'}`;
-        }
         
         // Update current values display
         async function updateCurrentValues() {
@@ -338,16 +232,14 @@ def generate_html():
                 currentZ.textContent = data.z;
                 motor1Angle.textContent = data.motor1_angle.toFixed(2);
                 motor2Angle.textContent = data.motor2_angle.toFixed(2);
-                updateStatusDisplay(data.pin_state);
+                statusDisplay.textContent = `Status: ${data.pin_state}`;
             } catch (error) {
                 console.error('Error fetching status:', error);
             }
         }
         
-        // Initialize the display
+        // Initialize and refresh
         updateCurrentValues();
-        
-        // Update status periodically
         setInterval(updateCurrentValues, 2000);
     </script>
 </body>
