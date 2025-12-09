@@ -357,7 +357,7 @@ def generate_html():
 class ReusableTCPServer(socketserver.TCPServer):
     allow_reuse_address = True
 
-def start_server(port=8000):
+def start_server(port=8080):
     with open('index.html', 'w') as f:
         f.write(generate_html())
 
