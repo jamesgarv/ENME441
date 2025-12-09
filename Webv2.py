@@ -4,7 +4,7 @@ import json
 import time
 import multiprocessing
 from Shifter import shifter
-from Motor_Code_Project import Stepper
+from MultiStepper import Stepper
 import Json_Reader
 
 XY = Json_Reader.goanglexy
