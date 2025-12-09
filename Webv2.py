@@ -136,7 +136,7 @@ def generate_html():
     <title>Raspberry Pi Control</title>
 </head>
 <body>
-    <h1>Raspberry Pi Control</h1>
+    <h1>Team 18 Turrent Control</h1>
     
     <h2>GPIO Toggle</h2>
     <button id="toggleBtn">Toggle ON/OFF</button>
